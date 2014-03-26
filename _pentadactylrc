@@ -1,0 +1,37 @@
+"1.0b7.2 "(created 2011/08/05 11:03:59)"
+
+loadplugins '\.(js|penta)$'
+group user
+
+" Options
+" set autocomplete= 
+set editor='emacsclientw.exe -c'
+colorscheme solarized-dark
+
+" Bookmarks
+bmark -title='Bookmarks' chrome://browser/content/places/places.xul -k bookmarks
+bmark -title='Downloads' chrome://mozapps/content/downloads/downloads.xul -k downloads
+bmark -title='History' chrome://browser/content/history/history-panel.xul -k history
+" bmark -title='Preferences' chrome://browser/content/preferences/preferences.xul -k preferences
+
+" Keybindings
+noremap <f3> :forward<CR>
+noremap <f2> :back<CR>
+noremap <f11> q
+noremap <f12> @
+
+noremap q <nop>
+noremap p :back<CR>
+noremap s y
+noremap c Y
+noremap v p
+noremap j <Space>
+noremap k <C-b>
+
+noremap gd -ex :dialog downloads
+noremap gp -ex :dialog preferences
+
+" M-Up/Dn toggles the toolbar and scrollbars
+map <A-Down> :set go+=BTm<CR>
+map <A-Up> :set go-=BTm<CR>
+
