@@ -6,35 +6,64 @@
 ;;; interfacing with ELPA, the package archive.
 ;;; Move this code earlier if you want to reference
 ;;; packages in your .emacs.
-;(when
-;    (load
-;     (expand-file-name "~/.emacs.d/elpa/package.el"))
-;  (package-initialize))
+;; (when
+;;    (load
+;;     (expand-file-name "~/.emacs.d/elpa/package.el"))
+;;  (package-initialize))
 (require 'package)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (package-initialize)
+
+(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
 
 ;;
 ;; miscellaneous settings
 ;;
-; this fixes PageUp/PageDown, among other things 
-; (but C-x/C-c/C-v override was too much, so don't set full cua-mode)
+;; this fixes PageUp/PageDown, among other things 
+;; (but C-x/C-c/C-v override was too much, so don't set full cua-mode)
 (cua-selection-mode 1)
-; shift-arrows move cursor between windows (and now frames, too!)
+;; shift-arrows move cursor between windows (and now frames, too!)
 (require 'framemove)
 (windmove-default-keybindings)
 (setq framemove-hook-into-windmove t)
-; reduce annoying confirmation prompts
+
+;; save and restore window configurations
+(winner-mode)
+
+;; reduce annoying confirmation prompts
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq kill-buffer-query-functions
   (remq 'process-kill-buffer-query-function
-         kill-buffer-query-functions))
-; better kill ring
+        kill-buffer-query-functions))
+
+;; enable company mode for auto-completion in all buffers
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; things grabbed from lolsmacs.el
+(show-paren-mode)
+(setq show-paren-delay 0)
+(setq show-paren-style 'mixed)
+
+(global-hl-line-mode)
+
+(setq whitespace-style '(tab-mark))
+(global-whitespace-mode)
+
+(size-indication-mode)
+
+(delete-selection-mode 1)
+
+;; better kill ring
 (require 'browse-kill-ring)
 (global-set-key (kbd "S-<f4>") 'browse-kill-ring)
 ;; miscellaneous overrides
-(defalias 'list-buffers 'ibuffer)
+;;(defalias 'list-buffers 'ibuffer)
+(defalias 'list-buffers 'bufler)
+;; expand region
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+(global-set-key (kbd "C--") 'er/contract-region)
 
 (delete-selection-mode 1)
 (put 'upcase-region 'disabled nil)
@@ -46,27 +75,20 @@
   (quote (("default"      
             ("Org" ;; all org-related buffers
               (mode . org-mode))  
-            ("Mail"
-              (or  ;; mail-related buffers
-               (mode . message-mode)
-               (mode . mail-mode)
-               ;; etc.; all your mail related modes
-               ))
-            ("CW Port"
-              (filename . "c:/Dennis/"))
-            ("MyProject2"
-              (filename . "src/myproject2/"))
+            ;; ("ROS"
+            ;;  (filename . "~/catkin_ws/"))
             ("Programming" ;; prog stuff not already in MyProjectX
-              (or
-                (mode . c-mode)
-                (mode . python-mode)
-                (mode . emacs-lisp-mode)
-                (mode . makefile-mode)
-                (mode . shell-mode)
-                (mode . eshell-mode)
-                ;; etc
-                )) 
-            ("ERC"   (mode . erc-mode))))))
+             (or
+              (mode . c-mode)
+              (mode . python-mode)
+              (mode . emacs-lisp-mode)
+              (mode . makefile-mode)
+              (mode . shell-mode)
+              (mode . eshell-mode)
+              ;; etc
+              )) 
+            ;;("ERC"   (mode . erc-mode))
+            ("EXWM" (mode . exwm-mode))))))
 
 (add-hook 'ibuffer-mode-hook
   (lambda ()
@@ -80,7 +102,7 @@
 	  '(lambda () 
 	     (define-key python-mode-map "\C-m" 'newline-and-indent)))
 ;; set path to pdb
-(setq pdb-path 'c:/Python26/pdb.bat
+(setq pdb-path '/usr/bin/pdb
       gud-pdb-command-name (symbol-name pdb-path))
 ;; default pdb argument
 (defadvice pdb (before gud-query-cmdline activate)
@@ -122,26 +144,7 @@
 
 ;; enable Emacs Code Browser (ECB)
 ;;(add-to-list 'load-path "~/ecb-2.40")
-(require 'ecb)
-
-
-;; org mode
-(require 'org-install)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
-(add-hook 'org-mode-hook (lambda () (visual-line-mode 1)))
-
-;; org-remember mode
-;;(org-remember-insinuate)
-(setq org-directory "~/org")
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-(define-key global-map "\C-cr" 'org-remember)
-
-;; org-bullets mode
-(require 'org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+;;(require 'ecb)
 
 ;; set theme
 ;;(load-theme 'zenburn t)
@@ -264,27 +267,170 @@ frames with exactly two windows."
 
 (setq hs-set-up-overlay 'display-code-line-counts)
 
+;; use flx package for ido matching
+(require 'flx-ido)
+(flx-ido-mode 1)
+
 ;; IDO-style matching for M-x commands
 (require 'smex)
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+(global-set-key (kbd "<menu>") 'smex)
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
 (require 'bm) ; bookmark support
 
 ;; When running in Windows, we want to use an alternate shell so we
 ;; can be more unixy.
-(setq shell-file-name "C:/MinGW/msys/1.0/bin/bash")
-(setq explicit-shell-file-name shell-file-name)
-(setenv "PATH"
-    (concat ".:/usr/local/bin:/mingw/bin:/bin:"
-        (replace-regexp-in-string " " "\\\\ "
-            (replace-regexp-in-string "\\\\" "/"
-                (replace-regexp-in-string "\\([A-Za-z]\\):" "/\\1"
-                    (getenv "PATH"))))))
+;;(setq shell-file-name "C:/MinGW/msys/1.0/bin/bash")
+;;(setq explicit-shell-file-name shell-file-name)
+;;(setenv "PATH"
+;;    (concat ".:/usr/local/bin:/mingw/bin:/bin:"
+;;        (replace-regexp-in-string " " "\\\\ "
+;;            (replace-regexp-in-string "\\\\" "/"
+;;                (replace-regexp-in-string "\\([A-Za-z]\\):" "/\\1"
+;;                    (getenv "PATH"))))))
 
+;; org-mode setup
+;(load "~/.emacs.d/init-org-mode")
+
+;; custom key bindings
 (load "~/.emacs.d/init-keybindings")
 
+;;(autoload 'extempore-mode "~/.linuxbrew/Cellar/extempore/0.59/extras/extempore.el" "" t)
+;;(add-to-list 'auto-mode-alist '("\\.xtm$" . extempore-mode))
+;;(setq user-extempore-directory "~/.linuxbrew/Cellar/extempore/0.59")
+
+(eval-after-load 'clojure-mode
+  '(font-lock-add-keywords
+    'clojure-mode `(("(\\(fn\\)[\[[:space:]]"
+                     (0 (progn (compose-region (match-beginning 1)
+                                               (match-end 1) "λ")
+                               nil))))))
+
+(eval-after-load 'clojure-mode
+  '(font-lock-add-keywords
+    'clojure-mode `(("\\(#\\)("
+                     (0 (progn (compose-region (match-beginning 1)
+                                               (match-end 1) "ƒ")
+                               nil))))))
+
+
+;; (eval-after-load 'clojure-mode
+;;   '(font-lock-add-keywords
+;;     'clojure-mode `(("\\(#\\){"
+;;                      (0 (progn (compose-region (match-beginning 1)
+;;                                                (match-end 1) "∈")
+;;                                nil))))))
+
+(require 'rainbow-delimiters)
+(require 'paredit)
+
+;;(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/clojure-mode"))
+(autoload 'clojure-mode "clojure-mode" "" t)
+;;(add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+(add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
+
+(dolist (x '(scheme emacs-lisp lisp clojure))
+  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'enable-paredit-mode)
+  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'rainbow-delimiters-mode))
+
+;; allow me to dedicate a window to displaying a particular buffer,
+;; so emacs doesn't use it for other things
+(defun toggle-current-window-dedication ()
+ (interactive)
+ (let* ((window    (selected-window))
+        (dedicated (window-dedicated-p window)))
+   (set-window-dedicated-p window (not dedicated))
+   (message "Window %sdedicated to %s"
+            (if dedicated "no longer " "")
+            (buffer-name))))
+
+;;(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/cider"))
+;(require 'cider)
+
+;; yasnippet mode
+;(require 'yasnippet)
+;(yas-global-mode 1)
+
+;; allow resizing windows by dragging dividers
+(window-divider-mode)
+(setq display-buffer-alist
+      `(;; no window
+        ("\\`\\*Async Shell Command\\*\\'"
+         (display-buffer-no-window))
+        ;; top side window
+        ("\\*\\(world-clock\\).*"
+         (display-buffer-in-side-window)
+         (window-height . 0.16)
+         (side . top)
+         (slot . -1))
+        ("\\*\\(Flymake diagnostics\\|Package-Lint\\).*"
+         (display-buffer-in-side-window)
+         (window-height . 0.16)
+         (side . top)
+         (slot . 0))
+        ("\\*Messages.*"
+         (display-buffer-in-side-window)
+         (window-height . 0.16)
+         (side . top)
+         (slot . 1))
+        ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Flymake log\\)\\*"
+         (display-buffer-in-side-window)
+         (window-height . 0.16)
+         (side . top)
+         (slot . 2))
+        ;; left side window
+        ;; right side window
+        ("\\*\\(.* # Help.*\\|Help\\)\\*"    ; See the hooks for `visual-line-mode'
+         (display-buffer-reuse-mode-window display-buffer-in-side-window)
+         (window-width . 0.33)
+         (side . right)
+         (slot . 1))
+        ("\\*keycast\\*"
+         (display-buffer-in-side-window)
+         (dedicated . t)
+         (window-width . 0.25)
+         (side . right)
+         (slot . -1)
+         (window-parameters . ((no-other-window . t)
+                               (mode-line-format . none))))
+        ;; bottom side window
+        ("\\*Org Select\\*"
+         (display-buffer-in-side-window)
+         (dedicated . t)
+         (side . bottom)
+         (slot . 0)
+         (window-parameters . ((mode-line-format . none))))
+        ;; bottom buffer (NOT side window)
+        ("\\*\\(Output\\|Register Preview\\).*"
+         (display-buffer-reuse-mode-window display-buffer-at-bottom))
+        ;; below current window
+        ("\\*.*\\(e?shell\\|v?term\\).*"
+         (display-buffer-reuse-mode-window display-buffer-below-selected))
+        ("\\*\\vc-\\(incoming\\|outgoing\\|git : \\).*"
+         (display-buffer-reuse-mode-window display-buffer-below-selected)
+         ;; NOTE 2021-10-06: we cannot `fit-window-to-buffer' because
+         ;; the height is not known in advance.
+         (window-height . 0.2))
+        ("\\*\\(Calendar\\|Bookmark Annotation\\).*"
+         (display-buffer-reuse-mode-window display-buffer-below-selected)
+         (window-height . fit-window-to-buffer))))
+
+(setq window-combination-resize t)
+(setq even-window-sizes 'height-only)
+(setq window-sides-vertical nil)
+(setq switch-to-buffer-in-dedicated-window 'pop)
+
+(require 'org-static-blog)
+(load "~/.emacs.d/init-org-static-blog")
+
 ;; allow fast startup of additional sessions with emacsclient
+;(unless (server-running-p) (server-start))
 (server-start)
+
+;; make emacs my window manager
+(require 'exwm)
+(load "~/.emacs.d/init-exwm")
+(dld/exwm-config-all)

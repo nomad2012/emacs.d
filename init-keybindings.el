@@ -1,5 +1,6 @@
 ;; keybindings to reduce chording & multi-key sequences
 
+(global-unset-key (kbd "M-`"))
 (global-unset-key (kbd "<f1>"))
 (define-key help-map [f1] nil)
 (define-key ctl-x-map [f1] nil)
@@ -19,8 +20,15 @@
 (global-set-key (kbd "S-<f6>") 'write-file)                 ;; C-x C-w
 (global-set-key (kbd "<f7>")   'kill-this-buffer)
 (global-set-key (kbd "<f8>")   'list-buffers)               ;; C-x C-b
-(global-set-key (kbd "<f9>")   'ecb-activate)               ;; Emacs Code Browser
-(global-set-key (kbd "<f10>")  'dired)
+(global-set-key (kbd "<f9> c") 'calendar)
+(global-set-key (kbd "<f9> d") 'dired)
+(global-set-key (kbd "<f9> e") 'ecb-activate)             ;; Emacs Code Browser
+(global-set-key (kbd "<f9> g") 'gnus)
+(global-set-key (kbd "<f9> s") 'shell)
+(global-set-key (kbd "<f9> I") 'bh/punch-in)
+(global-set-key (kbd "<f9> O") 'bh/punch-out)
+(global-set-key (kbd "<f10>")  'org-agenda)
+(global-set-key (kbd "S-<f10>") 'org-cycle-agenda-files)
 (global-set-key (kbd "<f11>")  'kmacro-start-macro-or-insert-counter) ;; was <f3>
 (global-set-key (kbd "<f12>")  'kmacro-end-or-call-macro)   ;; was <f4>
 (global-set-key (kbd "C-z")    'undo)                       ;; C-_, C-/, C-x u
