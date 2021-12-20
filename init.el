@@ -12,7 +12,8 @@
 ;;  (package-initialize))
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+;; org elpa gives deprecation warning as of org 9.5
+;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (package-initialize)
 
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp"))
@@ -23,6 +24,7 @@
 ;; this fixes PageUp/PageDown, among other things 
 ;; (but C-x/C-c/C-v override was too much, so don't set full cua-mode)
 (cua-selection-mode 1)
+
 ;; shift-arrows move cursor between windows (and now frames, too!)
 (require 'framemove)
 (windmove-default-keybindings)
@@ -119,7 +121,7 @@
 (require 'cedet)
 
 ;; Enable EDE (Project Management) features 
-(global-ede-mode 1)
+;; (global-ede-mode 1)
 
 ;; Enabling Semantic (code-parsing, smart completion) features 
 ;; Select one of the following:
