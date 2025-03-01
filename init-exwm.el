@@ -158,7 +158,7 @@
   ;;(require 'exwm-systemtray)
   ;;(exwm-systemtray-enable)
   ;; Enable EXWM -- currently done in .xinitrc.exwm
-  ;;(exwm-enable)
+  (exwm-enable)
   ;; enable desktop-environment for volume/brightness keys
   (desktop-environment-mode)
   ;; Update panel indicator when workspace changes

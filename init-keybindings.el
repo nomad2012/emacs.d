@@ -37,13 +37,13 @@
 
 
 ;; remap lwindow, rwindow, and apps keys to C-x and C-c prefixes
-(setq w32-pass-lwindow-to-system nil) ;; prevent lwindow from activating Start Menu
-(setq w32-pass-rwindow-to-system nil) ;; prevent rwindow from activating Start Menu
-(setq w32-lwindow-modifier 'nil)      ;; make sure it's not used as a modifier
-(setq w32-rwindow-modifier 'nil)      ;; make sure it's not used as a modifier
-(define-key key-translation-map [lwindow] [?\C-x]) 
-(define-key key-translation-map [rwindow] [?\C-x]) 
-(define-key key-translation-map [apps] [?\C-c]) 
+;(setq w32-pass-lwindow-to-system nil) ;; prevent lwindow from activating Start Menu
+;(setq w32-pass-rwindow-to-system nil) ;; prevent rwindow from activating Start Menu
+;(setq w32-lwindow-modifier 'nil)      ;; make sure it's not used as a modifier
+;(setq w32-rwindow-modifier 'nil)      ;; make sure it's not used as a modifier
+;(define-key key-translation-map [lwindow] [?\C-x]) 
+;(define-key key-translation-map [rwindow] [?\C-x]) 
+;(define-key key-translation-map [apps] [?\C-c]) 
 
 ; even with the below, f1 still wants to be help; <f1> <f1> still acts like C-x C-h
 ;(global-unset-key (kbd "<f1>"))

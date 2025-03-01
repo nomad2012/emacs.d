@@ -24,6 +24,9 @@
 ;; this fixes PageUp/PageDown, among other things 
 ;; (but C-x/C-c/C-v override was too much, so don't set full cua-mode)
 (cua-selection-mode 1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
 ;; shift-arrows move cursor between windows (and now frames, too!)
 (require 'framemove)
@@ -60,8 +63,8 @@
 (require 'browse-kill-ring)
 (global-set-key (kbd "S-<f4>") 'browse-kill-ring)
 ;; miscellaneous overrides
-;;(defalias 'list-buffers 'ibuffer)
-(defalias 'list-buffers 'bufler)
+(defalias 'list-buffers 'ibuffer)
+;;(defalias 'list-buffers 'bufler)
 ;; expand region
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
@@ -84,6 +87,7 @@
               (mode . c-mode)
               (mode . python-mode)
               (mode . emacs-lisp-mode)
+              (mode . lisp-mode)
               (mode . makefile-mode)
               (mode . shell-mode)
               (mode . eshell-mode)
@@ -149,9 +153,16 @@
 ;;(require 'ecb)
 
 ;; set theme
+;;(load-theme 'solarized-light t)
+;;(load-theme 'darkburn t)
+(setq zenburn-override-colors-alist
+  '(("zenburn-bg" . "#111111")))
+(load-theme 'zenburn t)
+
 ;;(load-theme 'zenburn t)
 ;;(load-theme 'solarized-dark t)
-(load-theme 'darkburn t)
+;;(load-theme 'mood-one t)
+;;(modus-themes-load-vivendi)
 
 ;; auto-complete mode
 ;(add-to-list 'load-path "~/.emacs.d/")
@@ -222,17 +233,17 @@ frames with exactly two windows."
 
 
 ;; add visible markers in fringe for foldable sections
-(autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
-(autoload 'hideshowvis-minor-mode
-  "hideshowvis"
-  "Will indicate regions foldable with hideshow in the fringe."
-  'interactive)
+;(autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
+;(autoload 'hideshowvis-minor-mode
+;  "hideshowvis"
+;  "Will indicate regions foldable with hideshow in the fringe."
+;  'interactive)
 
-(dolist (hook (list 'emacs-lisp-mode-hook
-                    'c++-mode-hook
-                    'python-mode-hook))
-  (add-hook hook 'hideshowvis-enable))
-(define-fringe-bitmap 'hs-marker [0 24 24 126 126 24 24 0])
+;(dolist (hook (list 'emacs-lisp-mode-hook
+;                    'c++-mode-hook
+;                    'python-mode-hook))
+;  (add-hook hook 'hideshowvis-enable))
+;(define-fringe-bitmap 'hs-marker [0 24 24 126 126 24 24 0])
 
 (defcustom hs-fringe-face 'hs-fringe-face
   "*Specify face used to highlight the fringe on hidden regions."
@@ -270,16 +281,19 @@ frames with exactly two windows."
 (setq hs-set-up-overlay 'display-code-line-counts)
 
 ;; use flx package for ido matching
-(require 'flx-ido)
-(flx-ido-mode 1)
+;(require 'flx-ido)
+;(flx-ido-mode 1)
 
 ;; IDO-style matching for M-x commands
-(require 'smex)
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "<menu>") 'smex)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+;(require 'smex)
+;(smex-initialize)
+;(global-set-key (kbd "M-x") 'smex)
+;(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+;(global-set-key (kbd "<menu>") 'smex)
+;(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+
+;; As of Emacs 28, fido-mode supplants ido and smex
+(fido-mode 1)
 
 (require 'bm) ; bookmark support
 
@@ -327,15 +341,30 @@ frames with exactly two windows."
 ;;                                nil))))))
 
 (require 'rainbow-delimiters)
-(require 'paredit)
+;;(require 'paredit)
 
 ;;(add-to-list 'load-path (expand-file-name "~/.emacs.d/lisp/clojure-mode"))
 (autoload 'clojure-mode "clojure-mode" "" t)
 ;;(add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
 (add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
 
+;; ulisp
+(add-to-list 'auto-mode-alist '("\\.ul$" . lisp-mode))
+
+(defun dld/slime-lisp-mode-hook-maybe (orig-fun &rest args)
+  (if (string-equal (file-name-extension (buffer-file-name)) "ul")
+    nil
+    (apply orig-fun args)))
+
+(advice-add 'slime-lisp-mode-hook :around #'dld/slime-lisp-mode-hook-maybe)
+
+;;(dolist (x '(scheme emacs-lisp lisp clojure))
+;;  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'enable-paredit-mode)
+;;  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'rainbow-delimiters-mode))
+
+(require 'parinfer-rust-mode)
 (dolist (x '(scheme emacs-lisp lisp clojure))
-  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'enable-paredit-mode)
+  (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'parinfer-rust-mode)
   (add-hook (intern (concat (symbol-name x) "-mode-hook")) 'rainbow-delimiters-mode))
 
 ;; allow me to dedicate a window to displaying a particular buffer,
@@ -385,7 +414,7 @@ frames with exactly two windows."
          (slot . 2))
         ;; left side window
         ;; right side window
-        ("\\*\\(.* # Help.*\\|Help\\)\\*"    ; See the hooks for `visual-line-mode'
+        ("\\*\\(.* # Help.*\\|Help\\|Apropos\\|.*apropos.*\\|.*inspector.*\\)\\*"    ; See the hooks for `visual-line-mode'
          (display-buffer-reuse-mode-window display-buffer-in-side-window)
          (window-width . 0.33)
          (side . right)
@@ -393,7 +422,7 @@ frames with exactly two windows."
         ("\\*keycast\\*"
          (display-buffer-in-side-window)
          (dedicated . t)
-         (window-width . 0.25)
+         (window-width . 0.33)
          (side . right)
          (slot . -1)
          (window-parameters . ((no-other-window . t)
@@ -425,14 +454,20 @@ frames with exactly two windows."
 (setq window-sides-vertical nil)
 (setq switch-to-buffer-in-dedicated-window 'pop)
 
-(require 'org-static-blog)
-(load "~/.emacs.d/init-org-static-blog")
+(require 'elfeed)
+(require 'elfeed-org)
+(elfeed-org)
+;(require 'elfeed-goodies)
+;(elfeed-goodies/setup)
+
+;;(require 'org-static-blog)
+;;(load "~/.emacs.d/init-org-static-blog")
 
 ;; allow fast startup of additional sessions with emacsclient
 ;(unless (server-running-p) (server-start))
 (server-start)
 
 ;; make emacs my window manager
-(require 'exwm)
-(load "~/.emacs.d/init-exwm")
-(dld/exwm-config-all)
+;(require 'exwm)
+;(load "~/.emacs.d/init-exwm")
+;(dld/exwm-config-all)

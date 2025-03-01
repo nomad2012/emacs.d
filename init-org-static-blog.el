@@ -15,7 +15,7 @@
 (setq org-static-blog-page-header
 "<meta name=\"author\" content=\"Dennis Draheim\">
 <meta name=\"referrer\" content=\"no-referrer\">
-<link href=\"simple.min.css\" rel=\"stylesheet\" type=\"text/css\" />
+<link href=\"static/simple.min.css\" rel=\"stylesheet\" type=\"text/css\" />
 <link rel=\"icon\" href=\"static/favicon.ico\">")
 
 ;; This preamble is inserted at the beginning of the <body> of every page:
